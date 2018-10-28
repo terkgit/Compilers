@@ -1,3 +1,5 @@
+//terkel and jos hw1
+
 package compilers_hw1;
 import java.util.Scanner;
 
