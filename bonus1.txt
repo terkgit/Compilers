@@ -1,0 +1,44 @@
+שקופית 61 תז 306281171
+ldc -3
+ldc 2
+add
+ldc 5
+sub
+print
+
+ldc 1
+not
+ldc 2
+ldc 1
+grt
+and
+print
+
+ldc 2
+ldc 3
+neq
+ldc 2
+ldc -2
+leq
+or
+print
+
+ldc -3
+ldc 7
+div
+not
+ldc 5
+sub
+print
+
+ldc 1
+ldc 2
+equ
+ldc 2
+ldc 4
+mul
+ldc 75
+les
+or
+print
+

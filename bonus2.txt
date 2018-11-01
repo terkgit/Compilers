@@ -1,0 +1,45 @@
+שקופית 18 תז 306281171
+ldc 5
+ldc 14 
+sto
+ldc 6
+ldo 5
+ldc 8
+add
+sto
+loop: ldo 5
+ldo 6
+leq
+fjp end
+ldo 5
+ldc 16
+equ
+fjp else
+ldc 7
+ldc 9
+sto
+ujp end_if
+else:ldo 6
+ldc 22
+equ
+fjp end_if
+ldc 7
+ldc -4
+sto
+end_if: ldc 5
+ldo 5
+ldc 2
+add
+sto
+ldc 6
+ldo 6
+ldc 1
+add
+sto
+ujp loop
+end: ldo 5
+print
+ldo 6
+print
+ldo 7
+print

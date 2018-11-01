@@ -35,12 +35,11 @@ class homework1 {
     }
 
     static final class Variable{
-        // Think! what does a Variable contain?
+        // Think! what does a Variable contain?x
     }
 
     static final class SymbolTable{
         // Think! what does a SymbolTable contain?
-
         public static SymbolTable generateSymbolTable(AST tree){
             // TODO: create SymbolTable from AST
             return null;
@@ -52,10 +51,11 @@ class homework1 {
     }
 
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
+    	Scanner scanner = new Scanner(System.in);
         AST ast = AST.createAST(scanner);
         SymbolTable symbolTable = SymbolTable.generateSymbolTable(ast);
         generatePCode(ast, symbolTable);
+        System.out.println("hhh");
     }
 
 }

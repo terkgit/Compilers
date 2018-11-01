@@ -1,0 +1,62 @@
+שקופית 12 תז 306281171
+ldc 6
+ldc 2
+sto
+ldc 5
+ldc 14
+ldc 8
+ldc 5
+ldc 3
+sub
+mul
+not
+sub
+sto
+loop_while:ldo 5
+ldo 6
+sub
+ldo 6
+leq
+ldc 7
+ldc sto
+neg
+ixj end_switch
+case_1: ldo 7
+print
+case_2: ldo 5
+ldo 6
+les
+fjp loop_while
+ldc 5
+ldo 5
+ldo 6
+add
+sto
+ujp loop_while
+case_3:ldc 0
+fjp else_0
+ldc 2 
+print
+ujp loop_while
+else_0:
+ldo 5
+print
+ujp loop_while
+ujp case_3
+ujp case_2
+ujp case_1
+end_switch:
+ldo 5
+print
+ldo 6
+print
+ldo 7
+print
+ldo 8
+ldo 5
+ldo 6
+sub
+ldo 7
+grt
+and
+print
