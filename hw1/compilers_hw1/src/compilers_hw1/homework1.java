@@ -145,7 +145,7 @@ class homework1 {
 	}
 
 	public static void main(String[] args) throws FileNotFoundException {
-		System.out.println("main start");
+		
     	Scanner scanner = new Scanner(new File("tree3.txt"));
 //    	Scanner scanner = new Scanner(System.in);
         AST ast = AST.createAST(scanner);
