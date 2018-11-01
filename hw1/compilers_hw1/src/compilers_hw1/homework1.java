@@ -106,7 +106,7 @@ class homework1 {
         if (debug) System.out.println(ast.value);
 
 		if(ast.value.equals("identifier")){
-			System.out.println("ldc " + symbolTable.ST.get(ast.left.value)+"");
+			System.out.println("ldc " + SymbolTable.ST.get(ast.left.value)+"");
     	}
 	}
 
@@ -116,7 +116,7 @@ class homework1 {
 			return;
         if (debug) System.out.println(ast.value);
 		if(ast.value.equals("constInt")){
-			System.out.println("ldc " + symbolTable.ST.get(ast.left.value)+"");
+			System.out.println("ldc " + SymbolTable.ST.get(ast.left.value)+"");
 		}
 		
 	}
@@ -136,9 +136,9 @@ class homework1 {
 			coded(ast.right, symbolTable);
 		}
 		if(ast.value.equals("var")){
-			symbolTable.ST.put(ast.left.left.value, symbolTable.ADR);
+			SymbolTable.ST.put(ast.left.left.value, SymbolTable.ADR);
 			switch(ast.right.value){
-			case "int": symbolTable.ADR+=1; break;
+			case "int": SymbolTable.ADR+=1; break;
 			}
 		}
 		
@@ -151,7 +151,7 @@ class homework1 {
         AST ast = AST.createAST(scanner);
         SymbolTable symbolTable = SymbolTable.generateSymbolTable(ast);
         generatePCode(ast, symbolTable);
-        return;
-        }
+
+    }
 
 }
