@@ -390,9 +390,15 @@ class homework1 {
 	}
 //
 	public static void main(String[] args) throws FileNotFoundException {
+<<<<<<< .mine
 		
 //    	Scanner scanner = new Scanner(new File("tree1.txt"));
     	Scanner scanner = new Scanner(System.in);
+=======
+		
+    	Scanner scanner = new Scanner(new File("tree3.txt"));
+//    	Scanner scanner = new Scanner(System.in);
+>>>>>>> .theirs
         AST ast = AST.createAST(scanner);
         SymbolTable symbolTable = SymbolTable.generateSymbolTable(ast);
         generatePCode(ast, symbolTable);
