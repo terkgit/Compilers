@@ -5,7 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Scanner;
-
+//
 /*
 * Hints in doing the HW:
 *   a) Make sure you first understand what you are doing.
@@ -388,11 +388,11 @@ class homework1 {
     	break;
 		}
 	}
-
+//
 	public static void main(String[] args) throws FileNotFoundException {
 		
-    	Scanner scanner = new Scanner(new File("tree8.txt"));
-//    	Scanner scanner = new Scanner(System.in);
+//    	Scanner scanner = new Scanner(new File("tree1.txt"));
+    	Scanner scanner = new Scanner(System.in);
         AST ast = AST.createAST(scanner);
         SymbolTable symbolTable = SymbolTable.generateSymbolTable(ast);
         generatePCode(ast, symbolTable);
