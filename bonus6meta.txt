@@ -1,0 +1,34 @@
+name	addr	type	size
+a 		5		int[]	180	
+b 		185		record 	44100
+  c		0		a[]		1260
+  d  	1260	c[]		42840
+
+
+
+
+(𝑙1 ∙ 𝑑2 ∙ 𝑑3 + 𝑙2 ∙ 𝑑3 + 𝑙3) ∙ size
+a:
+d1=9 d2=5 d3=4
+ixa3=20
+ixa2=4
+ixa1=1
+subpart=(-3*5+7*4+3)*1=16
+typesize=1
+size=180
+
+c:
+d1=7
+ixa1=1260
+subpart=-1
+typesize=180
+size=1260
+
+d:
+d1=2 d2=17
+ixa2=17*1260=21420
+ixa1=1260
+subpart=2*17-8*size=32760
+typesize=1260
+size=42840
+
