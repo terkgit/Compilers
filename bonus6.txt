@@ -1,0 +1,106 @@
+ldc 5
+ldc 0
+ixa 20
+ldc 8
+ixa 4
+ldc 5
+ixa 1
+dec 16
+ldc 2
+ldc 5
+ldc 4
+ixa 20
+ldc 8
+ixa 4
+ldc 4
+ixa 1
+dec 16
+ind
+mul 
+sto
+ldc 185
+inc 0
+ldc 1
+ixa 1260
+dec -1
+ldc 2
+ixa 20
+ldc 8
+ixa 4
+ldc 4
+ixa 1
+dec 16
+ind
+ldc 386
+equ
+fjp end_if_0
+ldc 5
+ldc 5
+ldc 2
+ixa 20
+ldc 7
+ixa 4
+ldc 2
+ixa 1
+dec 16
+ind
+ixa 20
+ldc 7
+ixa 4
+ldc 2
+ixa 1
+dec 16
+ind
+print
+end_if_0:
+ldc 185
+inc 1260
+ldc 3
+ixa 21420
+ldc 7
+ixa 1260
+dec 32760
+ldc 3
+ixa 1260
+dec -1
+ldc 3
+ixa 20
+ldc 9
+ixa 4
+ldc 9
+ixa 1
+dec 16
+ldc 5
+ldc -3
+ixa 20
+ldc 11
+ixa 4
+ldc 5
+ixa 1
+dec 16
+ind
+sto
+ldc 185
+inc 1260
+ldc 2
+ixa 21420
+ldc -8
+ixa 1260
+dec 32760
+ldc 5
+ixa 1260
+dec -1
+ldc 5
+ixa 20
+ldc 10
+ixa 4
+ldc 6
+ixa 1
+dec 16
+ind
+print
+
+
+
+
+
