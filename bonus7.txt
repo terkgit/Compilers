@@ -1,0 +1,92 @@
+ldc 17
+inc 8
+ldc 13
+sto
+ldc 5
+ldc 2
+ixa 1
+dec 2
+ldc 3
+ldc 2
+mul
+neg 
+sto
+ldc 5
+ldc 5
+ixa 1
+dec 2
+ldc 5
+ldc 2
+ixa 1
+dec 2
+ind
+ldc 5
+ldc 2
+ixa 1
+dec 2
+ind
+mul 
+sto
+ldc 9
+inc 0
+ldc -1
+ixa 2
+ldc 3
+ixa 1
+dec 0
+ldc 1
+ldc 0
+and
+sto
+ldc 9
+inc 6
+ldc 9
+sto
+ldc 9
+inc 6
+ind
+ldc 0
+ixa 2
+ldc 2
+ixa 1
+dec 0
+ldc 17
+inc 8
+ind
+ldc 4.3
+les
+sto
+ldc 1
+neg
+ixj end_switch
+case_1:
+ldc 5
+ldc 3
+ixa 1
+dec 2
+ind
+ldc 5
+ldc 4
+ixa 1
+dec 2
+ind
+sub
+print
+ujp end_switch
+case_2:
+ldc 9
+inc 0
+ldc 1
+ixa 2
+ldc 3
+ixa 1
+dec 0
+ind
+print
+ujp end_switch
+ujp case_2
+ujp case_1
+end_switch:
+
+
+
