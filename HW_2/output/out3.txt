@@ -1,0 +1,16 @@
+unknown coded type: array
+unknown coded type: array
+unknown codel: array
+ldc 12
+sto
+ldc 5
+ldc 10
+sto
+unknown codel: array
+ldc 7
+sto
+unknown codel: array
+unknown coder: array
+sto
+unknown coder: array
+print

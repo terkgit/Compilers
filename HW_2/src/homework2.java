@@ -46,10 +46,12 @@ class homework2 {
     	private String name;
     	private  int Addr;
     	private String type;
-    	public Variable(String name, int addr, String type) {
+    	private String pName;
+    	public Variable(String name, int addr, String type, String pName) {
 			this.name = name;
 			Addr = addr;
 			this.type = type;
+			this.pName = pName;
 		}
     	
     	/**
@@ -124,6 +126,12 @@ class homework2 {
         	ADR=5;
         	ST =  new ArrayList<Variable>();
         }
+        public void printST(){
+        	System.out.println("name:\t\tadrs\t\ttype\t\tptype");
+        	for(Variable v: ST){
+        		System.out.println(v.name + "\t\t" + v.Addr + "\t\t"+ v.type + "\t\t" + v.pName);
+        	}
+        }
     	private static void coded(AST ast) {
     		// TODO Auto-generated method stub
     		if (debug) System.out.println("coded ");
@@ -143,7 +151,8 @@ class homework2 {
 	    			coded(ast.right);
 	    			break;
     			case("var"):
-	    			ST.add(new Variable(ast.left.left.value,ADR,ast.right.value));
+    				String pName="";
+    			int curAdr=ADR;
 	    			switch(ast.right.value){
 		    			case "int": 
 		    				ADR+=1; 
@@ -154,10 +163,15 @@ class homework2 {
 		    			case "bool": 
 		    				ADR+=1; 
 		    			break;
+		    			case "pointer": 
+		    				ADR+=1; 
+		    				pName=ast.right.left.value;
+		    			break;
 		    			default:
 		    				System.out.println("unknown coded type: " +ast.right.value);
 		    				break;
 	    			}
+    				ST.add(new Variable(ast.left.left.value,curAdr,ast.right.value,pName));
 	    			break;
 	    		default:
 	    			System.out.println("unknown coded: "+ast.value);
@@ -229,25 +243,25 @@ class homework2 {
         		int lb=SymbolTable.LABEL++;
         		
         		coder(ast.left,symbolTable);
-        		System.out.println("fjp "+"L"+la);
+        		System.out.println("fjp "+"skip_if_"+la);
         		
         		code(ast.right.left,symbolTable);
-        		System.out.println("ujp "+"L"+lb);
+        		System.out.println("ujp "+"skip_else_"+lb);
         		
-        		System.out.println("L"+la+":");
+        		System.out.println("skip_if_"+la+":");
         		
         		code(ast.right.right,symbolTable);
-        		System.out.println("L"+lb+":");
+        		System.out.println("skip_else_"+lb+":");
         		
         	}
         	else{
         		int la=SymbolTable.LABEL++;
         		
         		coder(ast.left,symbolTable);
-        		System.out.println("fjp "+"L"+la);
+        		System.out.println("fjp "+"skip_if_"+la);
         		
         		code(ast.right,symbolTable);
-        		System.out.println("L"+la+":");
+        		System.out.println("skip_if_"+la+":");
         		
         	}
     		break;
@@ -259,7 +273,7 @@ class homework2 {
         	System.out.println("fjp "+"L"+lb);
         	code(ast.right,symbolTable);
         	System.out.println("ujp "+"L"+la);
-        	System.out.println("L"+lb+":");
+        	System.out.println("LW"+lb+":");
         	break;
     	default:
     		System.out.println("unknown code: "+ast.value);
@@ -273,10 +287,19 @@ class homework2 {
 		if(ast==null)
 			return;
         if (debug) System.out.println(ast.value);
-
-		if(ast.value.equals("identifier")){
-			System.out.println("ldc " + SymbolTable.getAddr(ast.left.value));
-    	}
+        switch(ast.value){
+        case("identifier"):
+        	System.out.println("ldc " + SymbolTable.getAddr(ast.left.value));
+        break;
+        case("pointer"):
+        	codel(ast.left,symbolTable);
+        	System.out.println("ind");
+        break;
+        
+        default:
+        	System.out.println("unknown codel: "+ast.value);
+		break;
+        }
 	}
 
 	private static void coder(AST ast, SymbolTable symbolTable) {
@@ -379,11 +402,13 @@ class homework2 {
 //	public static void main(String[] args) {
 	public static void main(String[] args) throws FileNotFoundException {
 
-    	Scanner scanner = new Scanner(new File("input\\tree3.txt"));
-//    	Scanner scanner = new Scanner(System.in);
+//    	Scanner scanner = new Scanner(new File("input\\tree2.txt"));
+    	Scanner scanner = new Scanner(System.in);
         AST ast = AST.createAST(scanner);
         SymbolTable symbolTable = SymbolTable.generateSymbolTable(ast);
+//        symbolTable.printST();
         generatePCode(ast, symbolTable);
+    
 
     }
 
