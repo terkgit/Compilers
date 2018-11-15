@@ -1,3 +1,4 @@
+
 //terkel and jos hw1
 
 import java.util.Scanner;
@@ -13,7 +14,7 @@ import java.util.ArrayList;
  */
 
 
-class homework1 {
+class homework2 {
 	private static boolean debug =false;
     // Abstract Syntax Tree
     static final class AST {
