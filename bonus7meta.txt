@@ -1,0 +1,27 @@
+name	addr	type	size
+a		5		real[]	4
+b		9		rec		8	
+  c		 0		cool[]	6
+  d		 6		c*		1
+  e		 7		a*		1
+f		17		rec
+  g		 0		b		8
+  h		 8		int		1
+  
+  
+a:
+d=4
+ixa=1
+tsize=1
+total=4
+sub=2
+
+c:
+d1=3 d2=2
+ixa2=2
+ixa1=1
+tsize=1
+total=6
+sub=0
+
+

@@ -1,0 +1,19 @@
+
+p
+	a	5	rec		3
+	 b	0	int		1
+	 c	1	int 	1
+	 d	2	int 	1
+	e	8	int[] 	21
+k
+	f	5	[3]a	5
+	g	10	[1]e	3
+	
+	
+e:
+d1=3 d2=7
+ixa2=7
+ixa1=1
+tsize=1
+total=21
+sub=5
