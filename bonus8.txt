@@ -1,0 +1,112 @@
+lda 1 5
+inc 2
+lda 0 5
+dpl
+ind
+ldc 0
+ldc 3
+add
+ldd 3
+mul
+ldc 4
+add
+ldd 4
+mul
+ldc 3
+add
+ixa 3
+sli
+inc 0
+ind
+lda 0 5
+dpl
+ind
+ldc 0
+ldc -9
+add
+ldd 3
+mul
+ldc 5
+add
+ldd 4
+mul
+ldc 6
+add
+ixa 3
+sli
+inc 1
+ind
+ldc 3
+mul
+add
+sto
+lda 0 10
+dpl
+ind
+ldc 0
+ldc 2
+add
+ixa 21
+sli
+ldc 2
+ixa 7
+ldc 3
+ixa 1
+dec 5
+ind
+ldc 6
+sub
+neg
+ixj end_switch
+case_1:
+lda 1 5
+inc 1
+lda 1 8
+ldc 1
+ixa 7
+ldc 0
+ixa 1
+dec 5
+ind
+ldc 3
+div
+sto
+lda 1 5
+inc 2
+ind
+print
+ujp end_switch
+case_2:
+loop_while:
+ldc 0
+fjp end_while
+lda 0 10
+dpl
+ind
+ldc 0
+lda 1 5
+inc 0
+ind
+ixa 3
+sli
+lda 1 5
+inc 1
+ind
+ixa 7
+lda 1 5
+inc 2
+ind
+ixa 1
+dec 5
+ind
+print
+end_while:
+ujp end_switch
+ujp case_2
+ujp case_1
+end_switch:
+lda 0 0
+...
+sto
+retf
+
