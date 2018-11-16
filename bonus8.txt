@@ -106,7 +106,61 @@ ujp case_2
 ujp case_1
 end_switch:
 lda 0 0
-...
+lda 0 5
+dpl
+ind
+ldc 0
+lda 1 5
+inc 1
+ind
+lda 1 5
+inc 2
+ind
+add
+add
+ldd 3
+mul
+lda 0 10
+dpl 
+ind
+ldc 0
+lda 0 10
+dpl
+ind
+ldc 0
+ldc 6
+add
+ixa 3
+sli
+ldc 1
+ixa 7
+ldc 1
+ixa 1
+dec 5
+ind
+add
+ixa 3
+sli
+lda 1 5
+inc 0
+ind
+ixa 7
+lda 1 5 
+inc 0
+ind
+ixa 1
+dec 5
+ind
+add
+ldd 4
+mul
+lda 1 5
+inc 1
+ind
+add
+ixa 3
+sli
+ind
 sto
 retf
 
