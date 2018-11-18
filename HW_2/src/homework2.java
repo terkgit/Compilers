@@ -120,11 +120,14 @@ class homework2 {
         // Think! what does a SymbolTable contain?
         public static int ADR;
         public static int LABEL;
+//        public static int CASE_ID;
         public static ArrayList<Variable> ST;
         public SymbolTable(){
         	LABEL=0;
         	ADR=5;
+//        	CASE_ID=0;
         	ST =  new ArrayList<Variable>();
+        	
         }
         public void printST(){
         	System.out.println("name:\t\tadrs\t\ttype\t\tptype");
@@ -205,7 +208,23 @@ class homework2 {
         
     	code(ast,symbolTable);
     }
-
+    private static void codec(AST ast, SymbolTable symbolTable, int la, int lb){
+		if(ast==null)
+			return;
+    	
+    	switch(ast.value) {
+    	case("caseList"):
+    		System.out.println("case_"+la+"_"+lb+":");
+    		code(ast.right.right,symbolTable);
+    		System.out.println("ujp switch_end_"+la);
+    		codec(ast.left,symbolTable,la,lb+1);
+    		System.out.println("ujp case_"+la+"_"+lb);
+    	break;
+		default:
+			System.out.println("unknown codec: "+ast.value);
+		break;
+    	}
+    }
     private static void code(AST ast, SymbolTable symbolTable) {
 		// TODO Auto-generated method stub
     	if (debug) System.out.println("code ");
@@ -256,7 +275,6 @@ class homework2 {
         	}
         	else{
         		int la=SymbolTable.LABEL++;
-        		
         		coder(ast.left,symbolTable);
         		System.out.println("fjp "+"skip_if_"+la);
         		
@@ -264,8 +282,8 @@ class homework2 {
         		System.out.println("skip_if_"+la+":");
         		
         	}
-    		break;
-        case("while"):
+    	break;
+        case("while"):{
         	int la=SymbolTable.LABEL++;
         	int lb=SymbolTable.LABEL++;
         	System.out.println("L"+la+":");
@@ -274,10 +292,19 @@ class homework2 {
         	code(ast.right,symbolTable);
         	System.out.println("ujp "+"L"+la);
         	System.out.println("LW"+lb+":");
-        	break;
+        break;}
+        case("switch"):{
+        	int la=SymbolTable.LABEL++;
+        	coder(ast.left,symbolTable);
+	        System.out.println("neg");
+	        System.out.println("ixj switch_end_"+la);
+        	codec(ast.right,symbolTable,la,1);
+        	System.out.println("switch_end_"+la+":");
+//        	System.out.println("L"+la+":");
+        break;}
     	default:
     		System.out.println("unknown code: "+ast.value);
-    		break;
+    	break;
         }
 	}
 
@@ -402,7 +429,7 @@ class homework2 {
 //	public static void main(String[] args) {
 	public static void main(String[] args) throws FileNotFoundException {
 
-//    	Scanner scanner = new Scanner(new File("input\\tree2.txt"));
+//    	Scanner scanner = new Scanner(new File("input\\tree4.txt"));
     	Scanner scanner = new Scanner(System.in);
         AST ast = AST.createAST(scanner);
         SymbolTable symbolTable = SymbolTable.generateSymbolTable(ast);
