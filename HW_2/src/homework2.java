@@ -5,6 +5,7 @@ import java.util.Scanner;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.List;
 //added test
 //
 /*
@@ -40,21 +41,51 @@ class homework2 {
         }
     }
 
-	
+	static public class Array_info{
+		
+		public int dim ;					// dim
+    	public int g;                      // typeSize
+    	public ArrayList<Integer> di;					//stores every dim size
+    	public int size;					//total array size
+    	public int subpart;
+    	public int[] ixa;
+    	
+    	
+    	public Array_info(){
+    		di= new ArrayList<Integer>();
+    		dim=0;
+    		g=0;
+    		size=0;
+    		subpart=0;
+    		ixa=null;
+    		
+    	}
+	}
+    
     static final class Variable{
         // Think! what does a Variable contain?x
-    	private String name;
-    	private  int Addr;
-    	private String type;
-    	private String pName;
+    	public String name;
+    	public  int Addr;
+    	public String type;
+    	public String pName;
+    	public Array_info a_info;
+    	
     	public Variable(String name, int addr, String type, String pName) {
 			this.name = name;
 			Addr = addr;
 			this.type = type;
 			this.pName = pName;
+			a_info=null;
 		}
     	
     	/**
+		 * @param a_info the a_info to set
+		 */
+		public void setA_info(Array_info a_info) {
+			this.a_info = a_info;
+		}
+
+		/**
 		 * @return the name
 		 */
 		public String getName() {
@@ -156,6 +187,7 @@ class homework2 {
     			case("var"):
     				String pName="";
     			int curAdr=ADR;
+    			Array_info inf =null;
 	    			switch(ast.right.value){
 		    			case "int": 
 		    				ADR+=1; 
@@ -170,11 +202,16 @@ class homework2 {
 		    				ADR+=1; 
 		    				pName=ast.right.left.value;
 		    			break;
+		    			case "array": inf =  new Array_info(); 
+		    			   		inf= codec_a(ast.right.left,inf);
+		    			break;
 		    			default:
 		    				System.out.println("unknown coded type: " +ast.right.value);
 		    				break;
 	    			}
-    				ST.add(new Variable(ast.left.left.value,curAdr,ast.right.value,pName));
+	    			Variable v = new Variable(ast.left.left.value,curAdr,ast.right.value,pName);
+	    			v.a_info=inf;
+    				ST.add(v);
 	    			break;
 	    		default:
 	    			System.out.println("unknown coded: "+ast.value);
@@ -182,7 +219,19 @@ class homework2 {
             }
     	}
 
-    	public static SymbolTable generateSymbolTable(AST tree){
+    	private static Array_info codec_a(AST ast,Array_info inf){
+			// TODO Auto-generated method stub
+    		switch(ast.left.value){
+    		case "rangeList":	; break;
+    		case "range": 		 break;
+    		case "constInt":     break;
+    		default:
+    			System.out.println("unknown coded_a: "+ast.value);
+    			break;
+    		}	
+			return inf;
+		}
+		public static SymbolTable generateSymbolTable(AST tree){
             // TODO: create SymbolTable from AST
         	SymbolTable st=new SymbolTable();
         	coded(tree.right);
@@ -429,8 +478,8 @@ class homework2 {
 //	public static void main(String[] args) {
 	public static void main(String[] args) throws FileNotFoundException {
 
-//    	Scanner scanner = new Scanner(new File("input\\tree4.txt"));
-    	Scanner scanner = new Scanner(System.in);
+    	Scanner scanner = new Scanner(new File("input\\tree3.txt"));
+//    	Scanner scanner = new Scanner(System.in);
         AST ast = AST.createAST(scanner);
         SymbolTable symbolTable = SymbolTable.generateSymbolTable(ast);
 //        symbolTable.printST();
