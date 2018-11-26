@@ -1,0 +1,48 @@
+ldc 9
+ldc 1
+sto
+L0:
+ldc 9
+ind
+ldc 2
+leq
+fjp L1
+ldc 10
+ldc 1
+sto
+L2:
+ldc 10
+ind
+ldc 2
+leq
+fjp L3
+ldc 9
+ind
+ldc 50
+mul
+ldc 10
+ind
+ldc 20
+mul
+add
+sto
+ldc 10
+ldc 10
+ind
+ldc 1
+add
+sto
+ujp L2
+LW3:
+ldc 9
+ldc 9
+ind
+ldc 1
+add
+sto
+ujp L0
+LW1:
+ind
+ind
+add
+print

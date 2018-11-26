@@ -5,6 +5,7 @@ import java.util.Scanner;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 //added test
 //
@@ -43,22 +44,33 @@ class homework2 {
 
 	static public class Array_info{
 		
-		public int dim ;					// dim
-    	public int g;                      // typeSize
-    	public ArrayList<Integer> di;					//stores every dim size
-    	public int size;					//total array size
+		/* (non-Javadoc)
+		 * @see java.lang.Object#toString()
+		 */
+		@Override
+		public String toString() {
+			return "Array_info [type=" + type + ", typeSize=" + typeSize + ", dim=" + dim + ", totalSize=" + totalSize
+					+ ", subpart=" + subpart + ", l=" + l + ", ixa=" + Arrays.toString(ixa) + "]";
+		}
+
+
+		public String type;
+    	public int typeSize;                      // typeSize
+    	public ArrayList<Integer> dim;					//stores every dim size
+    	public int totalSize;					//total array size
     	public int subpart;
+    	public ArrayList<Integer>  l;					//lower 
     	public int[] ixa;
     	
     	
     	public Array_info(){
-    		di= new ArrayList<Integer>();
-    		dim=0;
-    		g=0;
-    		size=0;
+    		dim= new ArrayList<Integer>();
+    		typeSize=0;
+    		totalSize=0;
     		subpart=0;
     		ixa=null;
-    		
+    		l= new ArrayList<Integer>();
+    		type="";
     	}
 	}
     
@@ -66,9 +78,11 @@ class homework2 {
         // Think! what does a Variable contain?x
     	public String name;
     	public  int Addr;
+    	public  int size;
     	public String type;
     	public String pName;
     	public Array_info a_info;
+    	
     	
     	public Variable(String name, int addr, String type, String pName) {
 			this.name = name;
@@ -76,53 +90,9 @@ class homework2 {
 			this.type = type;
 			this.pName = pName;
 			a_info=null;
+			size=0;
 		}
     	
-    	/**
-		 * @param a_info the a_info to set
-		 */
-		public void setA_info(Array_info a_info) {
-			this.a_info = a_info;
-		}
-
-		/**
-		 * @return the name
-		 */
-		public String getName() {
-			return name;
-		}
-		/**
-		 * @param name the name to set
-		 */
-		public void setName(String name) {
-			this.name = name;
-		}
-		
-	
-		/**
-		 * @return the type
-		 */
-		public String getType() {
-			return type;
-		}
-		/**
-		 * @param type the type to set
-		 */
-		public void setType(String type) {
-			this.type = type;
-		}
-		/**
-		 * @return the addr
-		 */
-		public int getAddr() {
-			return Addr;
-		}
-		/**
-		 * @param addr the addr to set
-		 */
-		public void setAddr(int addr) {
-			Addr = addr;
-		}
 		/* (non-Javadoc)
 		 * @see java.lang.Object#equals(java.lang.Object)
 		 */
@@ -164,7 +134,11 @@ class homework2 {
         	System.out.println("name:\t\tadrs\t\ttype\t\tptype");
         	for(Variable v: ST){
         		System.out.println(v.name + "\t\t" + v.Addr + "\t\t"+ v.type + "\t\t" + v.pName);
+        		if(v.a_info!=null){
+        			System.out.println(v.a_info.toString());
+        		}
         	}
+        	
         }
     	private static void coded(AST ast) {
     		// TODO Auto-generated method stub
@@ -187,28 +161,39 @@ class homework2 {
     			case("var"):
     				String pName="";
     			int curAdr=ADR;
+    			int size=0;
     			Array_info inf =null;
 	    			switch(ast.right.value){
 		    			case "int": 
-		    				ADR+=1; 
+//		    				ADR+=1;
+		    				size=1;
 		    			break;
 		    			case "real": 
-		    				ADR+=1; 
+//		    				ADR+=1; 
+		    				size=1;
 		    			break;
 		    			case "bool": 
-		    				ADR+=1; 
+//		    				ADR+=1;
+		    				size=1;
 		    			break;
 		    			case "pointer": 
-		    				ADR+=1; 
+//		    				ADR+=1; 
+		    				size=1;
 		    				pName=ast.right.left.value;
 		    			break;
-		    			case "array": inf =  new Array_info(); 
-		    			   		inf= codec_a(ast.right.left,inf);
+		    			case "array": 
+		    				inf =  new Array_info(); 
+		    				inf.type=ast.right.right.value;
+		    				inf.typeSize=getTypeSize(inf.type);
+		    			   	genArrInfo(ast.right.left,inf);
+		    			   	calcArrInfo(inf);
+		    			   	size=inf.totalSize;
 		    			break;
 		    			default:
 		    				System.out.println("unknown coded type: " +ast.right.value);
 		    				break;
 	    			}
+	    			ADR+=size;
 	    			Variable v = new Variable(ast.left.left.value,curAdr,ast.right.value,pName);
 	    			v.a_info=inf;
     				ST.add(v);
@@ -219,17 +204,55 @@ class homework2 {
             }
     	}
 
-    	private static Array_info codec_a(AST ast,Array_info inf){
+    	public static void calcArrInfo(Array_info inf) {
 			// TODO Auto-generated method stub
-    		switch(ast.left.value){
-    		case "rangeList":	; break;
-    		case "range": 		 break;
-    		case "constInt":     break;
-    		default:
-    			System.out.println("unknown coded_a: "+ast.value);
-    			break;
-    		}	
-			return inf;
+    		int sub=0;
+    		for(int i=0;i<inf.l.size();i++){
+    			int tmp=inf.l.get(i);
+    			for(int j =inf.l.size()-1;j>i;j--){
+    				tmp*=inf.dim.get(j);
+    			}
+    			sub+=tmp;
+    		}
+    		inf.subpart=sub;
+    		inf.ixa=new int[inf.dim.size()];
+    		for(int i=0;i<inf.dim.size();i++){
+    			inf.ixa[i]=inf.typeSize;
+    			for(int j =inf.dim.size()-1;j>i;j--){
+    				inf.ixa[i]*=inf.dim.get(j);
+    			}
+    		}
+    		
+    		inf.totalSize=inf.typeSize;
+    		for(int i=0;i<inf.dim.size();i++){
+    			inf.totalSize*=inf.dim.get(i);
+    		}
+    		
+    		
+    		
+			
+		}
+		public static int getTypeSize(String type) {
+			// TODO Auto-generated method stub
+			for(Variable var : ST){
+				if(var.name==type)
+					return var.size;
+			}
+    		return 1;
+		}
+		private static void genArrInfo(AST ast,Array_info inf){
+			// TODO Auto-generated method stub
+    		if(ast==null)
+    			return;
+    		genArrInfo(ast.left, inf);
+    		int l = Integer.parseInt(ast.right.left.left.value);
+    		int u = Integer.parseInt(ast.right.right.left.value);
+    		inf.dim.add(u-l+1);
+    		inf.l.add(l);
+    		
+    			
+    			
+			return ;
 		}
 		public static SymbolTable generateSymbolTable(AST tree){
             // TODO: create SymbolTable from AST
@@ -241,8 +264,8 @@ class homework2 {
 	public static int getAddr(String name) {
 			// TODO Auto-generated method stub
 			for(Variable var : ST){
-				if(var.getName().equals(name))
-					return var.getAddr();
+				if(var.name.equals(name))
+					return var.Addr;
 			}
 			return -1;
 		}  
@@ -364,20 +387,41 @@ class homework2 {
 			return;
         if (debug) System.out.println(ast.value);
         switch(ast.value){
-        case("identifier"):
-        	System.out.println("ldc " + SymbolTable.getAddr(ast.left.value));
-        break;
-        case("pointer"):
-        	codel(ast.left,symbolTable);
-        	System.out.println("ind");
-        break;
-        
-        default:
-        	System.out.println("unknown codel: "+ast.value);
-		break;
+	        case("identifier"):
+	        	System.out.println("ldc " + SymbolTable.getAddr(ast.left.value));
+	        break;
+	        case("pointer"):
+	        	codel(ast.left,symbolTable);
+	        	System.out.println("ind");
+	        break;
+	        case ("array"):
+		    	for(Variable var :  SymbolTable.ST){
+		    		String s1=var.name;
+		    		String s2=ast.left.left.value;
+//					if(var.name==ast.left.left.value){
+		    		if(s1.equals(s2)){
+		    			System.out.println("ldc " + var.Addr);
+						printArrInfo(var.a_info,ast.right,symbolTable);
+						System.out.println("dec "+var.a_info.subpart);
+						break;
+					}
+				}
+	        break;
+	        default:
+	        	System.out.println("unknown codel: "+ast.value);
+			break;
         }
 	}
 
+	public static int printArrInfo(Array_info info, AST ast ,SymbolTable symbolTable) {
+		// TODO Auto-generated method stub
+		if(ast==null)
+			return 0;
+		int i = printArrInfo(info, ast.left,symbolTable);
+		coder(ast.right,symbolTable);
+		System.out.println("ixa "+info.ixa[i]);
+		return i+1;
+	}
 	private static void coder(AST ast, SymbolTable symbolTable) {
 		if (debug) System.out.println("coder ");
 		if(ast==null)
@@ -469,6 +513,10 @@ class homework2 {
         	coder(ast.right,symbolTable);
         	System.out.println("equ");
         break;
+        case ("array"):
+        	codel(ast,symbolTable);
+        	System.out.println("ind");
+    	break;
         default:
         	System.out.println("unknown coder: "+ast.value);
     	break;
