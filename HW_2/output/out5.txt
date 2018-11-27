@@ -13,5 +13,12 @@ ixa 1
 dec 1
 ldc 8
 sto
+ldc 8
+ind
+ind
+ind
+ldc 1
+ixa 1
+dec 1
 ind
 print

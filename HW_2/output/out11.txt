@@ -1,7 +1,7 @@
 ldc 5
 ldc 1
 sto
-L0:
+while_0:
 ldc 5
 ind
 ldc 0
@@ -10,13 +10,13 @@ ldc 2
 ldc 5
 les
 and
-fjp L1
+fjp while_out_1
 ldc 1
 print
-unknown code: break
+ujp while_out_1
 ldc 2
 print
-ujp L0
-LW1:
+ujp while_0
+while_out_1:
 ldc 3
 print

@@ -1,48 +1,71 @@
-ldc 9
+ldc 11
 ldc 1
 sto
-L0:
-ldc 9
+while_0:
+ldc 11
 ind
 ldc 2
 leq
-fjp L1
-ldc 10
+fjp while_out_1
+ldc 12
 ldc 1
 sto
-L2:
-ldc 10
+while_2:
+ldc 12
 ind
 ldc 2
 leq
-fjp L3
-ldc 9
+fjp while_out_3
+ldc 7
+ldc 11
+ind
+ixa 2
+dec 2
+ldc 12
+ind
+ixa 1
+dec 1
+ldc 11
 ind
 ldc 50
 mul
-ldc 10
+ldc 12
 ind
 ldc 20
 mul
 add
 sto
-ldc 10
-ldc 10
+ldc 12
+ldc 12
 ind
 ldc 1
 add
 sto
-ujp L2
-LW3:
-ldc 9
-ldc 9
+ujp while_2
+while_out_3:
+ldc 11
+ldc 11
 ind
 ldc 1
 add
 sto
-ujp L0
-LW1:
+ujp while_0
+while_out_1:
+ldc 7
+ldc 1
+ixa 2
+dec 2
+ldc 1
+ixa 1
+dec 1
 ind
+ldc 7
+ldc 2
+ixa 2
+dec 2
+ldc 2
+ixa 1
+dec 1
 ind
 add
 print

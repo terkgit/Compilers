@@ -2,6 +2,7 @@
 //terkel and jos hw1
 
 import java.util.Scanner;
+import java.util.Stack;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -82,6 +83,7 @@ class homework2 {
     	public String type;
     	public String pName;
     	public Array_info a_info;
+    	public int r_size;
     	
     	
     	public Variable(String name, int addr, String type, String pName) {
@@ -91,6 +93,8 @@ class homework2 {
 			this.pName = pName;
 			a_info=null;
 			size=0;
+			r_size=0;
+			
 		}
     	
 		/* (non-Javadoc)
@@ -116,11 +120,12 @@ class homework2 {
 		}
     	
     }
-
+    
     static final class SymbolTable{
         // Think! what does a SymbolTable contain?
         public static int ADR;
         public static int LABEL;
+        public static Stack<Integer> lStack;
 //        public static int CASE_ID;
         public static ArrayList<Variable> ST;
         public SymbolTable(){
@@ -128,12 +133,13 @@ class homework2 {
         	ADR=5;
 //        	CASE_ID=0;
         	ST =  new ArrayList<Variable>();
+        	lStack= new Stack<Integer>();
         	
         }
         public void printST(){
-        	System.out.println("name:\t\tadrs\t\ttype\t\tptype");
+        	System.out.println("name:\t\tadrs\t\ttype\t\tsize\t\tptype\t\trsize");
         	for(Variable v: ST){
-        		System.out.println(v.name + "\t\t" + v.Addr + "\t\t"+ v.type + "\t\t" + v.pName);
+        		System.out.println(v.name + "\t\t" + v.Addr + "\t\t"+ v.type +"\t\t"+v.size+ "\t\t" + v.pName + "\t\t"+v.r_size);
         		if(v.a_info!=null){
         			System.out.println(v.a_info.toString());
         		}
@@ -163,6 +169,7 @@ class homework2 {
     			int curAdr=ADR;
     			int size=0;
     			Array_info inf =null;
+    			int rs=0;
 	    			switch(ast.right.value){
 		    			case "int": 
 //		    				ADR+=1;
@@ -179,22 +186,36 @@ class homework2 {
 		    			case "pointer": 
 //		    				ADR+=1; 
 		    				size=1;
-		    				pName=ast.right.left.value;
+		    				if(ast.right.left.value.equals("identifier"))
+		    					pName=ast.right.left.left.value;
+		    				else
+		    					pName=ast.right.left.value;
 		    			break;
 		    			case "array": 
 		    				inf =  new Array_info(); 
-		    				inf.type=ast.right.right.value;
+		    				if(ast.right.right.value.equals("identifier"))
+		    					inf.type= ast.right.right.left.value;
+		    				else
+		    					inf.type=ast.right.right.value;
 		    				inf.typeSize=getTypeSize(inf.type);
 		    			   	genArrInfo(ast.right.left,inf);
 		    			   	calcArrInfo(inf);
 		    			   	size=inf.totalSize;
 		    			break;
+		    			case "record":
+	    					coded(ast.right.left);
+	    					rs = ADR-curAdr;
+	    					size=rs;
+		    				
+	    				break;
 		    			default:
 		    				System.out.println("unknown coded type: " +ast.right.value);
 		    				break;
 	    			}
-	    			ADR+=size;
+	    			ADR+=size-rs;
 	    			Variable v = new Variable(ast.left.left.value,curAdr,ast.right.value,pName);
+	    			v.size=size;
+	    			v.r_size=rs;
 	    			v.a_info=inf;
     				ST.add(v);
 	    			break;
@@ -214,7 +235,7 @@ class homework2 {
     			}
     			sub+=tmp;
     		}
-    		inf.subpart=sub;
+    		inf.subpart=sub*inf.typeSize;
     		inf.ixa=new int[inf.dim.size()];
     		for(int i=0;i<inf.dim.size();i++){
     			inf.ixa[i]=inf.typeSize;
@@ -235,7 +256,7 @@ class homework2 {
 		public static int getTypeSize(String type) {
 			// TODO Auto-generated method stub
 			for(Variable var : ST){
-				if(var.name==type)
+				if(var.name.equals(type))
 					return var.size;
 			}
     		return 1;
@@ -260,16 +281,39 @@ class homework2 {
         	coded(tree.right);
         	return st;
         }
+		public static SymbolTable generateRecordTable(AST tree){
+            // TODO: create SymbolTable from AST
+        	SymbolTable st=new SymbolTable();
+        	coded(tree.right);
+        	return st;
+        }
 	
-	public static int getAddr(String name) {
+		public static int getAddr(String name) {
+				// TODO Auto-generated method stub
+				for(Variable var : ST){
+					if(var.name.equals(name))
+						return var.Addr;
+				}
+				return -1;
+			} 
+		public static String getPName(String name) {
 			// TODO Auto-generated method stub
 			for(Variable var : ST){
 				if(var.name.equals(name))
-					return var.Addr;
+					return var.pName;
 			}
-			return -1;
-		}  
+			return null;
+		} 
+		public static Variable getVar(String name) {
+			// TODO Auto-generated method stub
+			for(Variable var : ST){
+				if(var.name.equals(name))
+					return var;
+			}
+			return null;
+		}
     }
+    
 
     private static void generatePCode(AST ast, SymbolTable symbolTable) {
         // TODO: go over AST and print code
@@ -280,22 +324,25 @@ class homework2 {
         
     	code(ast,symbolTable);
     }
-    private static void codec(AST ast, SymbolTable symbolTable, int la, int lb){
+    private static int codec(AST ast, SymbolTable symbolTable, int la){
 		if(ast==null)
-			return;
-    	
+			return 0;
+    	int c=0;
     	switch(ast.value) {
     	case("caseList"):
-    		System.out.println("case_"+la+"_"+lb+":");
+    		c=codec(ast.left,symbolTable,la);
+    		c++;
+    		System.out.println("case_"+la+"_"+c+":");
     		code(ast.right.right,symbolTable);
     		System.out.println("ujp switch_end_"+la);
-    		codec(ast.left,symbolTable,la,lb+1);
-    		System.out.println("ujp case_"+la+"_"+lb);
+    		
+//    		System.out.println("ujp case_"+la+"_"+lb);
     	break;
 		default:
 			System.out.println("unknown codec: "+ast.value);
 		break;
     	}
+    	return c;
     }
     private static void code(AST ast, SymbolTable symbolTable) {
 		// TODO Auto-generated method stub
@@ -358,59 +405,84 @@ class homework2 {
         case("while"):{
         	int la=SymbolTable.LABEL++;
         	int lb=SymbolTable.LABEL++;
-        	System.out.println("L"+la+":");
+        	SymbolTable.lStack.push(lb);
+        	System.out.println("while_"+la+":");
         	coder(ast.left,symbolTable);
-        	System.out.println("fjp "+"L"+lb);
+        	System.out.println("fjp "+"while_out_"+lb);
         	code(ast.right,symbolTable);
-        	System.out.println("ujp "+"L"+la);
-        	System.out.println("LW"+lb+":");
+        	System.out.println("ujp "+"while_"+la);
+        	System.out.println("while_out_"+lb+":");
         break;}
         case("switch"):{
         	int la=SymbolTable.LABEL++;
         	coder(ast.left,symbolTable);
 	        System.out.println("neg");
 	        System.out.println("ixj switch_end_"+la);
-        	codec(ast.right,symbolTable,la,1);
+        	int c =codec(ast.right,symbolTable,la);
+        	for(int i=c ;i>0;i--){
+        		System.out.println("ujp case_"+la+"_"+i);
+        	}
         	System.out.println("switch_end_"+la+":");
 //        	System.out.println("L"+la+":");
         break;}
+        case("break"):{
+        		int lb =SymbolTable.lStack.pop();
+        		System.out.println("ujp while_out_"+lb);
+        		
+        break;
+        }
+        
     	default:
     		System.out.println("unknown code: "+ast.value);
     	break;
         }
 	}
 
-	private static void codel(AST ast, SymbolTable symbolTable) {
+	private static String codel(AST ast, SymbolTable symbolTable) {
 		// TODO Auto-generated method stub
 		if (debug) System.out.println("codel ");
 		if(ast==null)
-			return;
+			return null;
         if (debug) System.out.println(ast.value);
         switch(ast.value){
 	        case("identifier"):
 	        	System.out.println("ldc " + SymbolTable.getAddr(ast.left.value));
-	        break;
+	        	return ast.left.value;
+	        	
 	        case("pointer"):
-	        	codel(ast.left,symbolTable);
+	        	String name = codel(ast.left,symbolTable);
+	        	String pname= SymbolTable.getPName(name);
 	        	System.out.println("ind");
-	        break;
+	        	return pname;
+	        
 	        case ("array"):
-		    	for(Variable var :  SymbolTable.ST){
-		    		String s1=var.name;
-		    		String s2=ast.left.left.value;
-//					if(var.name==ast.left.left.value){
-		    		if(s1.equals(s2)){
-		    			System.out.println("ldc " + var.Addr);
-						printArrInfo(var.a_info,ast.right,symbolTable);
-						System.out.println("dec "+var.a_info.subpart);
-						break;
-					}
-				}
-	        break;
+	        		String n =codel(ast.left,symbolTable);
+	        		Variable v=SymbolTable.getVar(n);
+	        		printArrInfo(v.a_info,ast.right,symbolTable);
+					System.out.println("dec "+v.a_info.subpart);
+					return v.a_info.type;
+//		    	for(Variable var :  SymbolTable.ST){
+//		    		String s1=var.name;
+//		    		String s2=ast.left.left.value;
+////					if(var.name==ast.left.left.value){
+//		    		if(s1.equals(s2)){
+//		    			System.out.println("ldc " + var.Addr);
+//						printArrInfo(var.a_info,ast.right,symbolTable);
+//						System.out.println("dec "+var.a_info.subpart);
+//						break;
+//					}
+//				}
+	        case ("record"):
+	        		int adr1 = SymbolTable.getAddr(codel(ast.left,symbolTable));
+	        		int adr2 = SymbolTable.getAddr(ast.right.left.value);
+	        		adr2-=adr1;
+	        		System.out.println("inc "+ adr2);
+	        		return ast.right.left.value;
 	        default:
 	        	System.out.println("unknown codel: "+ast.value);
 			break;
         }
+        return null;
 	}
 
 	public static int printArrInfo(Array_info info, AST ast ,SymbolTable symbolTable) {
@@ -517,6 +589,10 @@ class homework2 {
         	codel(ast,symbolTable);
         	System.out.println("ind");
     	break;
+        case ("record"):
+        	codel(ast,symbolTable);
+    		System.out.println("ind");
+    		break;
         default:
         	System.out.println("unknown coder: "+ast.value);
     	break;
@@ -526,8 +602,8 @@ class homework2 {
 //	public static void main(String[] args) {
 	public static void main(String[] args) throws FileNotFoundException {
 
-    	Scanner scanner = new Scanner(new File("input\\tree3.txt"));
-//    	Scanner scanner = new Scanner(System.in);
+//    	Scanner scanner = new Scanner(new File("input\\tree8.txt"));
+    	Scanner scanner = new Scanner(System.in);
         AST ast = AST.createAST(scanner);
         SymbolTable symbolTable = SymbolTable.generateSymbolTable(ast);
 //        symbolTable.printST();
