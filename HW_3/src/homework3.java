@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 //added test
 //
@@ -75,16 +76,22 @@ class homework3 {
     		type="";
     	}
 	}
-    
+//    static final class funcs{
+//    	public String name;
+//    	public  int Addr;
+//    	public  int size;
+//    	public String type;
+//    }
     static final class Variable{
         // Think! what does a Variable contain?x
     	public String name;
     	public  int Addr;
-    	public  int size;
-    	public String type;
-    	public String pName;
-    	public Array_info a_info;
-    	public int r_size;
+    	public  int size;							//Var size / func total var size
+    	public String type;				
+    	public String pName;						//pointer type / func return type
+    	public Array_info a_info;					
+    	public int r_size;							//record size
+    	public int f_depth;
     	
     	
     	public Variable(String name, int addr, String type, String pName) {
@@ -95,6 +102,7 @@ class homework3 {
 			a_info=null;
 			size=0;
 			r_size=0;
+			f_depth=0;
 			
 		}
     	
@@ -126,21 +134,26 @@ class homework3 {
         // Think! what does a SymbolTable contain?
         public static int ADR;
         public static int LABEL;
-        public static Stack<Integer> lStack;
-//        public static int CASE_ID;
+        public static int SLABEL;
+        public static int FRAME;
+        public static Stack<Integer> lStack;				//label stack
         public static ArrayList<Variable> ST;
+        public static Variable curr_fun ;					//current funcntion in coded
+        public static int TMP;
+//        public static ArrayList<funcs> FT;
         public SymbolTable(){
         	LABEL=0;
-        	ADR=5;
-//        	CASE_ID=0;
+        	ADR=0;
+        	FRAME=0;
         	ST =  new ArrayList<Variable>();
         	lStack= new Stack<Integer>();
-        	
+        	curr_fun = null;
+        	TMP=0;
         }
         public void printST(){
-        	System.out.println("name:\t\tadrs\t\ttype\t\tsize\t\tptype\t\trsize");
+        	System.out.println("name:\t\tstaticL\t\tadrs\t\ttype\t\tsize\t\tptype\t\trsize");
         	for(Variable v: ST){
-        		System.out.println(v.name + "\t\t" + v.Addr + "\t\t"+ v.type +"\t\t"+v.size+ "\t\t" + v.pName + "\t\t"+v.r_size);
+        		System.out.println(v.name + "\t\t"+v.f_depth +"\t\t"+ v.Addr + "\t\t"+ v.type.substring(0, 3) +"\t\t"+v.size+ "\t\t" + v.pName + "\t\t"+v.r_size);
         		if(v.a_info!=null){
         			System.out.println(v.a_info.toString());
         		}
@@ -155,22 +168,66 @@ class homework3 {
             if (debug) System.out.println(ast.value);
             
             switch(ast.value){
+            	case("program"):
+            		ADR=0;
+            		Variable pv = new Variable(ast.left.left.left.value.toUpperCase(),ADR,ast.value,"");
+            		pv.f_depth=0;
+            		ST.add(pv);
+            		ADR+=5;
+            		FRAME=0;
+            		pv.size=5;
+            		curr_fun=pv;
+            		coded(ast.left);
+            		coded(ast.right);
+        		break;
+            	case("procedure"):
+            	case("function"): 
+            		int fAdr=ADR;
+            		ADR=0;
+            		Variable fp = new Variable(ast.left.left.left.value.toUpperCase(),ADR,ast.value,"");
+            		FRAME++;
+            		fp.f_depth=FRAME;
+            		ST.add(fp);
+            		ADR+=5;
+            		fp.size=5;
+            		curr_fun=fp;
+            		coded(ast.left);
+            		coded(ast.right);
+            		FRAME--;
+            		ADR=fAdr;
+        		break;
+            	case("inOutParameters"):
+            		coded(ast.left);
+            	break;
+        		case("identifierAndParameters"):
+    				coded(ast.right);
+				break;
             	case("content"):
             		coded(ast.left);
             		break;
             	case("scope"):
     				coded(ast.left);
+            		coded(ast.right);
+            		break;
+            	case("functionsList"):
+            		coded(ast.right);
             		break;
     			case("declarationsList"):
 	    			coded(ast.left);
 	    			coded(ast.right);
 	    			break;
+    			case("parametersList"):
+    				coded(ast.left);
+    				coded(ast.right);
+    				break;
+    			case("byValue"):
+    				
     			case("var"):
     				String pName="";
-    			int curAdr=ADR;
-    			int size=0;
-    			Array_info inf =null;
-    			int rs=0;
+	    			int curAdr=ADR;
+	    			int size=0;
+	    			Array_info inf =null;
+	    			int rs=0;
 	    			switch(ast.right.value){
 		    			case "int": 
 //		    				ADR+=1;
@@ -218,6 +275,8 @@ class homework3 {
 	    			v.size=size;
 	    			v.r_size=rs;
 	    			v.a_info=inf;
+	    			curr_fun.size+=size-rs;
+	    			v.f_depth=FRAME;
     				ST.add(v);
 	    			break;
 	    		default:
@@ -279,13 +338,13 @@ class homework3 {
 		public static SymbolTable generateSymbolTable(AST tree){
             // TODO: create SymbolTable from AST
         	SymbolTable st=new SymbolTable();
-        	coded(tree.right);
+        	coded(tree);
         	return st;
         }
 		public static SymbolTable generateRecordTable(AST tree){
             // TODO: create SymbolTable from AST
         	SymbolTable st=new SymbolTable();
-        	coded(tree.right);
+        	coded(tree);
         	return st;
         }
 	
@@ -313,6 +372,23 @@ class homework3 {
 			}
 			return null;
 		}
+		public static Variable getNextVar(String name) {
+			// TODO Auto-generated method stub
+			for(int i = 0 ;i<ST.size()-1 ;i++){
+				if( ST.get(i).name.equals(name))
+					return ST.get(i+1);
+			}
+			return null;
+		}
+		public static int getStatic(String name) {
+			// TODO Auto-generated method stub
+			for(Variable var : ST){
+				if(var.name.equals(name))
+					return var.f_depth-FRAME;
+			}
+			return -1;
+		}
+		
     }
     
 
@@ -335,7 +411,7 @@ class homework3 {
     		c++;
     		System.out.println("case_"+la+"_"+c+":");
     		code(ast.right.right,symbolTable);
-    		System.out.println("ujp switch_end_"+la);
+    		System.out.println("ujp L"+la);
     		
 //    		System.out.println("ujp case_"+la+"_"+lb);
     	break;
@@ -354,18 +430,67 @@ class homework3 {
         
         switch(ast.value){
         case("program"):
+        	SymbolTable.FRAME=0;
+            System.out.println(ast.left.left.left.value.toUpperCase()+":");
+        	System.out.println("ssp " + SymbolTable.getVar(ast.left.left.left.value.toUpperCase()).size);
+//        	System.out.println("sep ?");
+        	System.out.println("ujp " + ast.left.left.left.value.toUpperCase()+"_begin");
+        	code(ast.right.left,symbolTable);
+        	System.out.println(ast.left.left.left.value.toUpperCase()+"_begin:");
+        	code(ast.right.right,symbolTable);
+        	System.out.println("stp");
+        	break;
+        case("procedure"):
+        	SymbolTable.FRAME++;
+            System.out.println(ast.left.left.left.value.toUpperCase()+":");
+        	System.out.println("ssp " + SymbolTable.getVar(ast.left.left.left.value.toUpperCase()).size);
+//        	System.out.println("sep ?");
+        	System.out.println("ujp " + ast.left.left.left.value.toUpperCase()+"_begin");
+        	code(ast.right.left,symbolTable);
+        	System.out.println(ast.left.left.left.value.toUpperCase()+"_begin:");
+        	code(ast.right.right,symbolTable);
+        	SymbolTable.FRAME--;
+        	System.out.println("retp");
         	
-     		if(ast.right!=null){
-    			code(ast.right ,symbolTable);
-    		}     
+        	break;
+        case("function"):
+        	SymbolTable.FRAME++;
+            System.out.println(ast.left.left.left.value.toUpperCase()+":");
+        	System.out.println("ssp " + SymbolTable.getVar(ast.left.left.left.value.toUpperCase()).size);
+//        	System.out.println("sep ?");
+        	System.out.println("ujp " + ast.left.left.left.value.toUpperCase()+"_begin");
+        	code(ast.right.left,symbolTable);
+        	System.out.println(ast.left.left.left.value.toUpperCase()+"_begin:");
+        	code(ast.right.right,symbolTable);
+        	SymbolTable.FRAME--;
+        	System.out.println("retf");
+        	
         	break;
         case("content"):
+        	code(ast.left ,symbolTable);
 			code(ast.right ,symbolTable);
     		break;
+        case("scope"):
+        	code(ast.right ,symbolTable);
+        	break;
+        case("functionsList"):
+        	code(ast.left ,symbolTable);
+        	code(ast.right ,symbolTable);
+        	break;
+        	
         case("statementsList"):
     		code(ast.left,symbolTable);
     		code(ast.right,symbolTable);
     		break;
+        case("call"):
+//        	Iterator<Variable> it = SymbolTable.getIter();
+        	SymbolTable.TMP=0;
+        	Variable fvar =SymbolTable.getVar(ast.left.left.value.toUpperCase());
+        	int mst = SymbolTable.FRAME-fvar.f_depth+1;
+        	System.out.println("mst "+ mst);
+        	codeArg(ast.right,fvar,symbolTable);
+        	System.out.println("cup "+SymbolTable.TMP+" "+fvar.name);
+        	break;
         case("assignment"):
     		codel(ast.left,symbolTable);
     		coder(ast.right,symbolTable);
@@ -382,24 +507,24 @@ class homework3 {
         		int lb=SymbolTable.LABEL++;
         		
         		coder(ast.left,symbolTable);
-        		System.out.println("fjp "+"skip_if_"+la);
+        		System.out.println("fjp "+"L"+la);
         		
         		code(ast.right.left,symbolTable);
-        		System.out.println("ujp "+"skip_else_"+lb);
+        		System.out.println("ujp "+"L"+lb);
         		
-        		System.out.println("skip_if_"+la+":");
+        		System.out.println("L"+la+":");
         		
         		code(ast.right.right,symbolTable);
-        		System.out.println("skip_else_"+lb+":");
+        		System.out.println("L"+lb+":");
         		
         	}
         	else{
         		int la=SymbolTable.LABEL++;
         		coder(ast.left,symbolTable);
-        		System.out.println("fjp "+"skip_if_"+la);
+        		System.out.println("fjp "+"L"+la);
         		
         		code(ast.right,symbolTable);
-        		System.out.println("skip_if_"+la+":");
+        		System.out.println("L"+la+":");
         		
         	}
     	break;
@@ -407,23 +532,23 @@ class homework3 {
         	int la=SymbolTable.LABEL++;
         	int lb=SymbolTable.LABEL++;
         	SymbolTable.lStack.push(lb);
-        	System.out.println("while_"+la+":");
+        	System.out.println("L"+la+":");
         	coder(ast.left,symbolTable);
-        	System.out.println("fjp "+"while_out_"+lb);
+        	System.out.println("fjp "+"L"+lb);
         	code(ast.right,symbolTable);
-        	System.out.println("ujp "+"while_"+la);
-        	System.out.println("while_out_"+lb+":");
+        	System.out.println("ujp "+"L"+la);
+        	System.out.println("L"+lb+":");
         break;}
         case("switch"):{
         	int la=SymbolTable.LABEL++;
         	coder(ast.left,symbolTable);
 	        System.out.println("neg");
-	        System.out.println("ixj switch_end_"+la);
+	        System.out.println("ixj L"+la);
         	int c =codec(ast.right,symbolTable,la);
         	for(int i=c ;i>0;i--){
         		System.out.println("ujp case_"+la+"_"+i);
         	}
-        	System.out.println("switch_end_"+la+":");
+        	System.out.println("L"+la+":");
 //        	System.out.println("L"+la+":");
         break;}
         case("break"):{
@@ -439,7 +564,27 @@ class homework3 {
         }
 	}
 
-	private static String codel(AST ast, SymbolTable symbolTable) {
+	public static Variable codeArg(AST ast, Variable fvar,SymbolTable symbolTable) {
+		// TODO Auto-generated method stub
+		if(ast==null)
+			return SymbolTable.getNextVar(fvar.name);
+		Variable v = codeArg(ast.left,fvar ,symbolTable);
+		SymbolTable.TMP+=v.size;
+		switch(v.type){
+		case("array"):
+			codel(ast.right,symbolTable);
+			System.out.println("movs " + v.size);
+			break;
+		case("int"):
+			coder(ast.right,symbolTable);
+			break;
+		default:
+			System.out.println("unknown codeArg: "+v.type);
+    	break;
+		}
+		return null;
+	}
+	public static String codel(AST ast, SymbolTable symbolTable) {
 		// TODO Auto-generated method stub
 		if (debug) System.out.println("codel ");
 		if(ast==null)
@@ -447,7 +592,10 @@ class homework3 {
         if (debug) System.out.println(ast.value);
         switch(ast.value){
 	        case("identifier"):
-	        	System.out.println("ldc " + SymbolTable.getAddr(ast.left.value));
+	        	if(SymbolTable.getStatic(ast.left.value)==-1)
+	        		System.out.println("lda "+SymbolTable.getStatic(ast.left.value.toUpperCase())+" " + SymbolTable.getAddr(ast.left.value.toUpperCase()));
+	        	else
+	        		System.out.println("lda "+SymbolTable.getStatic(ast.left.value)+" " + SymbolTable.getAddr(ast.left.value));
 	        	return ast.left.value;
 	        	
 	        case("pointer"):
@@ -594,6 +742,9 @@ class homework3 {
         	codel(ast,symbolTable);
     		System.out.println("ind");
     		break;
+        case("call"):
+        	code(ast,symbolTable);
+        	break;
         default:
         	System.out.println("unknown coder: "+ast.value);
     	break;
@@ -603,11 +754,11 @@ class homework3 {
 //	public static void main(String[] args) {
 	public static void main(String[] args) throws FileNotFoundException {
 
-//    	Scanner scanner = new Scanner(new File("input\\tree8.txt"));
-    	Scanner scanner = new Scanner(System.in);
+    	Scanner scanner = new Scanner(new File("input\\tree13.txt"));
+//    	Scanner scanner = new Scanner(System.in);
         AST ast = AST.createAST(scanner);
         SymbolTable symbolTable = SymbolTable.generateSymbolTable(ast);
-//        symbolTable.printST();
+        symbolTable.printST();
         generatePCode(ast, symbolTable);
     
 

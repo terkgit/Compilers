@@ -13,7 +13,7 @@ java homework3 < ../input/tree11.txt > ../output/out11.txt
 java homework3 < ../input/tree12.txt > ../output/out12.txt
 java homework3 < ../input/tree13.txt > ../output/out13.txt
 java homework3 < ../input/tree14.txt > ../output/out14.txt
-java homework3 < ../input/tree15.txt > ../output/out15.txt
-java homework3 < ../input/tree16.txt > ../output/out16.txt
+::java homework3 < ../input/tree15.txt > ../output/out15.txt
+::java homework3 < ../input/tree16.txt > ../output/out16.txt
 cd ..
 pause
