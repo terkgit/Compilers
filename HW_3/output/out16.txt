@@ -27,7 +27,7 @@ lda 0 5
 ldc 6
 ixa 1
 dec 1
-ldc 15
+ldc 18
 sto
 mst 0
 ldc F

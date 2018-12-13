@@ -144,11 +144,11 @@ lda 0 5
 ind
 cup 1 F
 sto
-lda -1 -1
+lda 0 6
 ldc 1
 sto
 L6:
-lda -1 -1
+lda 0 6
 ind
 lda 0 5
 ind
@@ -160,10 +160,10 @@ lda 0 5
 ind
 lda 0 5
 ind
-lda -1 -1
+lda 0 6
 ind
 div
-lda -1 -1
+lda 0 6
 ind
 mul
 equ
@@ -172,14 +172,14 @@ lda 0 0
 lda 0 0
 ind
 mst 0
-lda -1 -1
+lda 0 6
 ind
 cup 1 F
 add
 sto
 L8:
-lda -1 -1
-lda -1 -1
+lda 0 6
+lda 0 6
 ind
 ldc 1
 add
