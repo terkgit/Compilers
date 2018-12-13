@@ -57,21 +57,21 @@ L6:
 ldc 2
 neg
 ixj L7
-case_0_1:
+case_7_1:
 ldc 0
 print
 ujp L7
-case_0_2:
+case_7_2:
 ujp L7
-case_0_3:
+case_7_3:
 ldc 1
 print
 ldc 2
 print
 ujp L7
-ujp case_0_3
-ujp case_0_2
-ujp case_0_1
+ujp case_7_3
+ujp case_7_2
+ujp case_7_1
 L7:
 lda 0 5
 ldc 5

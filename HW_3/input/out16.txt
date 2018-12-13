@@ -31,6 +31,6 @@ ldc 18
 sto
 mst 0
 ldc F
-lda 0 0
+lda 0 1
 cup 2 G
 stp

@@ -93,6 +93,7 @@ class homework3 {
     	public int r_size;							//record size
     	public int f_depth;
     	public String frame;
+    	public boolean ref;
     	
     	
     	public Variable(String name, int addr, String type, String pName) {
@@ -104,6 +105,7 @@ class homework3 {
 			size=0;
 			r_size=0;
 			f_depth=0;
+			ref=false;
 			
 		}
     	
@@ -152,10 +154,10 @@ class homework3 {
         	TMP=0;
         }
         public void printST(){
-        	System.out.println("name:\t\tstaticL\t\tadrs\t\ttype\t\tsize\t\tptype\t\trsize\t\tframe");
+        	System.out.println("name:\tsLink\tadrs\t\ttype\t\tsize\t\tptype\trsize\t\tframe\t\tref?");
         	for(Variable v: ST){
-        		System.out.println(v.name + "\t\t"+v.f_depth +"\t\t"+ v.Addr + "\t\t"+ v.type.substring(0, 3)
-        								+"\t\t"+v.size+ "\t\t" + v.pName + "\t\t"+v.r_size +"\t\t"+v.frame);
+        		System.out.println(v.name + "\t"+v.f_depth +"\t"+ v.Addr + "\t\t"+ v.type.substring(0, 3)
+        								+"\t"+v.size+ "\t\t" + v.pName + "\t\t"+v.r_size +"\t\t"+v.frame+"\t\t"+v.ref);
         		if(v.a_info!=null){
         			System.out.println(v.a_info.toString());
         		}
@@ -169,6 +171,7 @@ class homework3 {
     			return;
             if (debug) System.out.println(ast.value);
             String frameName="MAIN";
+            boolean ref=false;
             if(curr_fun!=null)
             	 frameName = curr_fun.name;                        
             switch(ast.value){
@@ -230,7 +233,7 @@ class homework3 {
     				coded(ast.right);
     				break;
     			case("byReference"):
-    				break;
+    				ref=true;
     			case("byValue"):    				
     			case("var"):
     				Variable tmpVar=null;
@@ -278,9 +281,23 @@ class homework3 {
 		    				
 	    				break;
 		    			case "identifier":
-		    				tmpVar = getVar(ast.right.left.value.toUpperCase(), curr_fun.name);
-		    				pName=ast.right.left.value.toUpperCase();
-		    				size=2;
+		    				tmpVar = getVar(ast.right.left.value, curr_fun.name);
+		    				
+		    				if(tmpVar!=null){
+		    					size=tmpVar.size;
+		    					if(ref){
+//		    						tmpVar.pName=tmpVar.type;
+//		    						tmpVar.type="ref";
+		    						size=1;
+		    						
+		    					}
+		    					
+		    				}
+		    				else{		  
+			    				tmpVar = getVar(ast.right.left.value.toUpperCase(), curr_fun.name);
+			    				pName=ast.right.left.value.toUpperCase();
+			    				size=2;
+		    				}
 		    				break;
 		    			default:
 		    				System.out.println("unknown coded type: " +ast.right.value);
@@ -294,10 +311,18 @@ class homework3 {
 	    			curr_fun.size+=size-rs;
 	    			v.f_depth=FRAME;
 	    			v.frame=frameName;
+	    			
 	    			if(tmpVar!=null){
-	    				v.name=v.name.toUpperCase();
-	    				v.type=tmpVar.type;
-	    				v.size=2;
+	    				if(tmpVar.type.equals("function"))
+	    					v.name=v.name.toUpperCase();
+    					if(tmpVar.type.equals("procedure"))
+    						v.name=v.name.toUpperCase();
+	    				v.pName=tmpVar.name;
+    					v.type=tmpVar.type;
+	    				v.size=size;
+	    			}
+	    			if(ref){
+	    				v.ref=true;
 	    			}
     				ST.add(v);
 	    			break;
@@ -635,12 +660,28 @@ class homework3 {
 			int stat =SymbolTable.curr_fun.f_depth - SymbolTable.getVar(ast.right.left.value.toUpperCase(), SymbolTable.curr_fun.name).f_depth;
 			System.out.println("lda "+stat+" 1");
 			break;
+		case("identifier"):
+			codel(ast.right,symbolTable);
+			if(!v.ref)
+				System.out.println("some ref");
+		break;
+		case("record"):
+			codel(ast.right,symbolTable);
+			if(!v.ref)
+				System.out.println("movs "+ v.size);
+		break;
+		case("pointer"):
+			codel(ast.right,symbolTable);
+			if(!v.ref)
+				System.out.println("some point");
+		break;
 		default:
 			System.out.println("unknown codeArg: "+v.type);
     	break;
 		}
-		return null;
+		return SymbolTable.getNextVar(v.name,SymbolTable.curr_fun.name);
 	}
+	
 	public static String codel(AST ast, SymbolTable symbolTable) {
 		// TODO Auto-generated method stub
 		if (debug) System.out.println("codel ");
@@ -651,9 +692,13 @@ class homework3 {
 	        case("identifier"):
 	        	if(SymbolTable.getStatic(ast.left.value,SymbolTable.curr_fun.name)==-1)
 	        		System.out.println("lda "+SymbolTable.getStatic(ast.left.value.toUpperCase(),SymbolTable.curr_fun.name)+" " + SymbolTable.getVar(ast.left.value.toUpperCase(),SymbolTable.curr_fun.name).Addr);
-	        	else
+	        	else{
 	        		System.out.println("lda "+SymbolTable.getStatic(ast.left.value,SymbolTable.curr_fun.name)+" " + SymbolTable.getVar(ast.left.value,SymbolTable.curr_fun.name).Addr);
-	        	return ast.left.value;
+	        		if(SymbolTable.getVar(ast.left.value,SymbolTable.curr_fun.name).ref){
+	        			System.out.println("ind");
+	        		}
+	        	}
+	        return ast.left.value;
 	        	
 	        case("pointer"):
 	        	String name = codel(ast.left,symbolTable);
@@ -679,9 +724,14 @@ class homework3 {
 //					}
 //				}
 	        case ("record"):
-	        		int adr1 = SymbolTable.getVar(codel(ast.left,symbolTable),SymbolTable.curr_fun.name).Addr;
-	        		int adr2 = SymbolTable.getVar(ast.right.left.value,SymbolTable.curr_fun.name).Addr;
-	        		adr2-=adr1;
+	        		Variable var1=SymbolTable.getVar(codel(ast.left,symbolTable),SymbolTable.curr_fun.name);
+	        		Variable var2=SymbolTable.getVar(ast.right.left.value,SymbolTable.curr_fun.name);
+	        		if(!var1.pName.equals(""))
+	        			var1=SymbolTable.getVar(var1.pName,SymbolTable.curr_fun.name);
+	        		int adr1 = var1.Addr;
+	        		int adr2 = var2.Addr;
+//	        		System.out.println("..."+var1.name+" "+var2.name);
+	        		adr2-=adr1;	    
 	        		System.out.println("inc "+ adr2);
 	        		return ast.right.left.value;
 	        default:
@@ -817,8 +867,8 @@ class homework3 {
         SymbolTable symbolTable = SymbolTable.generateSymbolTable(ast);
 //        symbolTable.printST();
         generatePCode(ast, symbolTable);
-    
-
+        	//f(var x,var y,z)
+        	//x.q.a + y^.q.b + z.q.c
     }
 
 }
